@@ -1,17 +1,16 @@
 import React, { Component } from "react";
-import "./App.css";
 import httpService from "./services/httpService";
+import config from "./config.json"
+import "./App.css";
 
 
-
-const APIEndPoint = "https://jsonplaceholder.typicode.com/posts";
 class App extends Component {
   state = {
     posts: []
   };
 
   async componentDidMount() {
-    const {data : posts} = await httpService.get(APIEndPoint);
+    const {data : posts} = await httpService.get(config.apiEndPoint);
     this.setState({posts});
    // const response = await promise;
  
@@ -19,7 +18,7 @@ class App extends Component {
 
   handleAdd = async() => {
     const obj = {title : "q" , body: "b"};
-   const {data : post } = await httpService.post(APIEndPoint , obj);
+   const {data : post } = await httpService.post(config.apiEndPoint , obj);
    //Add the posts to our table
 
    const posts = [post, ...this.state.posts];
@@ -29,7 +28,7 @@ class App extends Component {
 
   handleUpdate  = async post => {
     post.title = "New Title";
-    await httpService.put(APIEndPoint + "/" + post.id , post);
+    await httpService.put(config.apiEndPoint + "/" + post.id , post);
     const posts = [...this.state.posts];
     const index = posts.indexOf(post);
     posts[index] = {...post};
@@ -43,7 +42,7 @@ class App extends Component {
     this.setState({posts});
 
     try{
-        await  httpService.delete(APIEndPoint + "/" + post.id);
+        await  httpService.delete(config.apiEndPoint + "/" + post.id);
         
       }catch (ex){
         if (ex.response && ex.response.status === 404)
