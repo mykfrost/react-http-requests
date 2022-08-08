@@ -4,16 +4,15 @@ import "./App.css";
 
 Axios.interceptors.response.use(null , error =>{
   const expectedError = error.response && error.response.status >= 400 
-    && error.response.status <= 500;
-  if (expectedError);
-    return Promise.reject(error);
-
-  console.log("My Error Log :" , ex);
-
+    && error.response.status < 500;
+    
+  if (!expectedError){
+  console.log("My Error Log :" , error);
   alert("An unexpected error occured.");
-  
+  }    
+
   return Promise.reject(error);
-})
+});
 
 const APIEndPoint = "https://jsonplaceholder.typicode.com/posts";
 class App extends Component {
@@ -61,9 +60,7 @@ class App extends Component {
         alert("This post has already been deleted!");
        
         this.setState({posts : originalPosts});
-      }
-  
-   
+      }  
   };
 
   render() {
