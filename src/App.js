@@ -2,28 +2,68 @@ import React, { Component } from "react";
 import Axios from "axios";
 import "./App.css";
 
+Axios.interceptors.response.use(null , error =>{
+  const expectedError = error.response && error.response.status >= 400 
+    && error.response.status <= 500;
+  if (expectedError);
+    return Promise.reject(error);
+
+  console.log("My Error Log :" , ex);
+
+  alert("An unexpected error occured.");
+  
+  return Promise.reject(error);
+})
+
+const APIEndPoint = "https://jsonplaceholder.typicode.com/posts";
 class App extends Component {
   state = {
     posts: []
   };
 
   async componentDidMount() {
-    const promise = Axios.get("https://jsonplaceholder.typicode.com/posts");
-   
-    const response = await promise;
-     console.log(response);
+    const {data : posts} = await Axios.get(APIEndPoint);
+    this.setState({posts});
+   // const response = await promise;
+ 
   }
 
-  handleAdd = () => {
-    console.log("Add");
+  handleAdd = async() => {
+    const obj = {title : "q" , body: "b"};
+   const {data : post } = await Axios.post(APIEndPoint , obj);
+   //Add the posts to our table
+
+   const posts = [post, ...this.state.posts];
+   this.setState({posts});
+
   };
 
-  handleUpdate = post => {
-    console.log("Update", post);
+  handleUpdate  = async post => {
+    post.title = "New Title";
+    await Axios.put(APIEndPoint + "/" + post.id , post);
+    const posts = [...this.state.posts];
+    const index = posts.indexOf(post);
+    posts[index] = {...post};
+    this.setState({posts});
   };
 
-  handleDelete = post => {
-    console.log("Delete", post);
+  handleDelete = async post => {
+    const originalPosts = this.state.posts;
+
+    const posts = this.state.posts.filter(p => p.id !== post.id);
+    this.setState({posts});
+
+    try{
+        await  Axios.delete(APIEndPoint + "/" + post.id);
+        
+      }catch (ex){
+        if (ex.response && ex.response.status === 404)
+        alert("This post has already been deleted!");
+       
+        this.setState({posts : originalPosts});
+      }
+  
+   
   };
 
   render() {
